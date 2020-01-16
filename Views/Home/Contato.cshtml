@@ -38,9 +38,16 @@
                 <div>
                     <article class="card">
                         <div class="card-body p-5">
-                            <p class="alert alert-success">Mensagem de sucesso!</p>
+                            @if (ViewData["MSG_S"] != null)
+                            {
+                                <p class="alert alert-success">@ViewData["MSG_S"]</p>
+                            }
 
-                            <form role="form" method="post">
+                            @if (ViewData["MSG_E"] != null)
+                            {
+                                <p class="alert alert-danger">@Html.Raw(ViewData["MSG_E"])</p>
+                            }
+                            <form method="post" action="/Home/ContatoSubmit">
                                 <div class="form-group">
                                     <label for="username">Nome</label>
                                     <div class="input-group">
@@ -58,7 +65,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-at"></i></span>
                                         </div>
-                                        <input type="text" class="form-control" name="email" id="email" placeholder ="">
+                                        <input type="text" class="form-control" name="email" id="email" placeholder="">
                                     </div> <!-- input-group.// -->
                                 </div> <!-- form-group.// -->
 
@@ -73,7 +80,7 @@
                                         </div>
                                     </div>
                                 </div> <!-- row.// -->
-                                <button class="subscribe btn btn-primary btn-block" type="button"> Enviar </button>
+                                <button class="subscribe btn btn-primary btn-block" type="submit"> Enviar </button>
                             </form>
                         </div> <!-- card-body.// -->
                     </article> <!-- card.// -->
