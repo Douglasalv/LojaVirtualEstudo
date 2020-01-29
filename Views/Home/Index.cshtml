@@ -1,4 +1,4 @@
-﻿
+﻿@model LojaVirtual.Models.NewsletterEmail;
 @{
     ViewData["Title"] = "Index";
 }
@@ -160,4 +160,25 @@
     </div>
 </main>
 
+@using (Html.BeginForm("Index", "Home", FormMethod.Post)){
+    <div class="row">
+        <div class="col-sm-4 offset-sm-3">
+
+            <div class="form-group">
+                <label for="username">Cadastre seu email para receber novidades.</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                    </div>
+                @Html.EditorFor(m => m.Email);
+
+                </div> <!-- input-group.// -->
+            </div> <!-- form-group.// -->
+
+        </div>
+        <div class="col-sm-1">
+            <button class="subscribe btn btn-primary btn-block" style="margin-top:27px;" type="submit"> Enviar </button>
+        </div>
+    </div>
+}
 
