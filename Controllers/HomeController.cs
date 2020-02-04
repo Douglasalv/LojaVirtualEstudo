@@ -7,16 +7,45 @@ using LojaVirtual.Models;
 using LojaVirtual.Libraries.Email;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using LojaVirtual.Database;
 
 namespace LojaVirtual.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly LojaVirtualContext _bdContext;
+        public HomeController(LojaVirtualContext bdContext)
+        {
+            _bdContext = bdContext;
+        }
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        /*
+         * FromForm já atribui os dados vindo da requisição POST para o 
+         * objeto do tipo NewsletterEmail 
+         */
+        [HttpPost]
+        public IActionResult Index([FromForm] NewsletterEmail newsletter)
+        {
+            if (ModelState.IsValid)
+            {
+
+                _bdContext.newsletterEmails.Add(newsletter);
+                _bdContext.SaveChanges();
+
+                TempData["MSG_S"] = "E-mail cadastrado com sucesso.";
+                return RedirectToAction(nameof(Index));
+
+            }
+            else
+            {
+                return View();
+            }
+        }
         public IActionResult Contato()
         {
             return View();
@@ -72,7 +101,14 @@ namespace LojaVirtual.Controllers
             return View();
         }
 
-        public IActionResult CadastroCliente()
+        [HttpGet]
+        public IActionResult CadastroCliente(){
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CadastroCliente([FromForm]Cliente cliente)
         {
             return View();
         }

@@ -160,19 +160,39 @@
     </div>
 </main>
 
-@using (Html.BeginForm("Index", "Home", FormMethod.Post)){
-    <div class="row">
-        <div class="col-sm-4 offset-sm-3">
 
+@{
+    /*
+     * URL: #Fragmento -> Link do tipo ancora
+     */
+
+    /*
+     * Primeiro formulario:
+     * @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+     */
+}
+
+@using (Html.BeginForm(null, null, null, FormMethod.Post, false, new { @action = @Url.Action("Index", "Home") + "#formulario" }))
+
+{
+    <div class="row" id="formulario">
+
+        <div class="col-sm-4 offset-sm-3">
             <div class="form-group">
                 <label for="username">Cadastre seu email para receber novidades.</label>
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                     </div>
-                @Html.EditorFor(m => m.Email);
+
+                    @Html.EditorFor(m => m.Email, new { htmlAttributes = new { @class = "form-control" } })
 
                 </div> <!-- input-group.// -->
+                <span style="color: red;">@Html.ValidationMessageFor(m => m.Email)</span>
+                @if (TempData["MSG_S"] != null)
+                {
+                    <span style="color: green" ;>@TempData["MSG_S"]</span>
+                }
             </div> <!-- form-group.// -->
 
         </div>
