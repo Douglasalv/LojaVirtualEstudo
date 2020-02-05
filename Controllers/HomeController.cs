@@ -103,13 +103,23 @@ namespace LojaVirtual.Controllers
 
         [HttpGet]
         public IActionResult CadastroCliente(){
-
+            
             return View();
         }
 
         [HttpPost]
         public IActionResult CadastroCliente([FromForm]Cliente cliente)
         {
+            if (ModelState.IsValid)
+            {
+                _bdContext.Add(cliente);
+                _bdContext.SaveChanges();
+
+                TempData["MSG_S"] = "Cadastro efetuado com sucesso!";
+
+
+                return RedirectToAction(nameof(CadastroCliente));
+            }
             return View();
         }
 
