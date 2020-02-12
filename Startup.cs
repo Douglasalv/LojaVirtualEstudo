@@ -4,9 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using LojaVirtual.Database;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
+using LojaVirtual.Models.Repositories.Contracts;
+using LojaVirtual.Models.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LojaVirtual
 {
@@ -19,9 +20,26 @@ namespace LojaVirtual
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            /*
+             * Padrão repository sendo utilizado
+             */
+            services.AddScoped<INewsletterRepository, NewsletterRepository>();
+            services.AddScoped<IClienteRepository, ClienteRepository>();
+
+            /*
+             * Session - Configuração
+             */
+            services.AddMemoryCache(); //guardar dados na memória
+            services.AddSession(options =>
+            {
+                options.Id
+            }
+            );
+
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddControllersWithViews();
             services.AddDbContext<LojaVirtualContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
@@ -47,7 +65,7 @@ namespace LojaVirtual
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

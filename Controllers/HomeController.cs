@@ -8,16 +8,21 @@ using LojaVirtual.Libraries.Email;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using LojaVirtual.Database;
+using LojaVirtual.Models.Repositories.Contracts;
+using Microsoft.AspNetCore.Http;
 
 namespace LojaVirtual.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly LojaVirtualContext _bdContext;
-        public HomeController(LojaVirtualContext bdContext)
+        private readonly IClienteRepository _clienteRepository;
+        private readonly INewsletterRepository _newsletterRepository;
+        public HomeController(IClienteRepository repository, INewsletterRepository newsletterRepository)
         {
-            _bdContext = bdContext;
+            _clienteRepository = repository;
+            _newsletterRepository = newsletterRepository;
         }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -33,18 +38,15 @@ namespace LojaVirtual.Controllers
         {
             if (ModelState.IsValid)
             {
-
-                _bdContext.newsletterEmails.Add(newsletter);
-                _bdContext.SaveChanges();
-
-                TempData["MSG_S"] = "E-mail cadastrado com sucesso.";
+                _newsletterRepository.Cadastrar(newsletter);
+                TempData["MSG_S"] = "Cadastro de Email efetuado com sucesso!";
                 return RedirectToAction(nameof(Index));
-
             }
             else
             {
                 return View();
             }
+            
         }
         public IActionResult Contato()
         {
@@ -96,8 +98,42 @@ namespace LojaVirtual.Controllers
 
             return View("Contato");
         }
+
+        [HttpGet]
         public IActionResult Login()
         {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Painel()
+        {
+            byte[] SessionId;
+            if(HttpContext.Session.TryGetValue("ID", out SessionId))
+            {
+
+            }
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login([FromForm]Cliente cliente)
+        {
+            var clienteResult = _clienteRepository.ObterTodosClientes().Where(x => x.Email == cliente.Email && x.Senha == cliente.Senha);
+            
+            if (clienteResult.Count() != 0)
+            {
+                /*
+                 * Criação da sessão
+                 */
+
+                HttpContext.Session.Set("ID", new byte[] { 52});
+                HttpContext.Session.SetString("Email", cliente.Email);
+            }
+            else
+            {
+
+            }
             return View();
         }
 
@@ -112,11 +148,16 @@ namespace LojaVirtual.Controllers
         {
             if (ModelState.IsValid)
             {
-                _bdContext.Add(cliente);
-                _bdContext.SaveChanges();
 
-                TempData["MSG_S"] = "Cadastro efetuado com sucesso!";
-
+                if (_clienteRepository.Cadastrar(cliente))
+                {
+                    TempData["MSG_S"] = "Cadastro efetuado com sucesso!";
+                }
+                
+                else
+                {
+                    TempData["MSG_S"] = "Erro!";
+                }
 
                 return RedirectToAction(nameof(CadastroCliente));
             }
