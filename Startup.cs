@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using LojaVirtual.Models.Repositories.Contracts;
 using LojaVirtual.Models.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using LojaVirtual.Libraries.Session;
+using LojaVirtual.Libraries.Login;
 
 namespace LojaVirtual
 {
@@ -25,6 +27,7 @@ namespace LojaVirtual
             /*
              * Padrão repository sendo utilizado
              */
+            services.AddHttpContextAccessor();
             services.AddScoped<INewsletterRepository, NewsletterRepository>();
             services.AddScoped<IClienteRepository, ClienteRepository>();
 
@@ -34,11 +37,12 @@ namespace LojaVirtual
             services.AddMemoryCache(); //guardar dados na memória
             services.AddSession(options =>
             {
-                options.Id
+             
             }
             );
 
-
+            services.AddScoped<Session>();
+            services.AddScoped<LoginCliente>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddControllersWithViews();
             services.AddDbContext<LojaVirtualContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

@@ -10,6 +10,7 @@ using System.Text;
 using LojaVirtual.Database;
 using LojaVirtual.Models.Repositories.Contracts;
 using Microsoft.AspNetCore.Http;
+using LojaVirtual.Libraries.Login;
 
 namespace LojaVirtual.Controllers
 {
@@ -17,10 +18,12 @@ namespace LojaVirtual.Controllers
     {
         private readonly IClienteRepository _clienteRepository;
         private readonly INewsletterRepository _newsletterRepository;
-        public HomeController(IClienteRepository repository, INewsletterRepository newsletterRepository)
+        private readonly LoginCliente _loginCliente;
+        public HomeController(IClienteRepository repository, INewsletterRepository newsletterRepository, LoginCliente loginCliente)
         {
             _clienteRepository = repository;
             _newsletterRepository = newsletterRepository;
+            _loginCliente = loginCliente;
         }
 
         [HttpGet]
@@ -108,33 +111,37 @@ namespace LojaVirtual.Controllers
         [HttpGet]
         public IActionResult Painel()
         {
-            byte[] SessionId;
-            if(HttpContext.Session.TryGetValue("ID", out SessionId))
+            Cliente cliente = _loginCliente.GetClient();
+            if(cliente != null)
             {
-
+                return new ContentResult() {Content = "Usuário " + cliente.Id + ". Email " + cliente.Email + ". Logado"};
             }
-            return View();
+            {
+                return new ContentResult() { Content = "Acesso Negado." };
+            }
         }
 
         [HttpPost]
         public IActionResult Login([FromForm]Cliente cliente)
         {
-            var clienteResult = _clienteRepository.ObterTodosClientes().Where(x => x.Email == cliente.Email && x.Senha == cliente.Senha);
+            var clienteResult = _clienteRepository.Login(cliente.Email, cliente.Senha);
             
-            if (clienteResult.Count() != 0)
+            if (clienteResult != null)
             {
                 /*
                  * Criação da sessão
                  */
+                _loginCliente.Login(clienteResult);
 
-                HttpContext.Session.Set("ID", new byte[] { 52});
-                HttpContext.Session.SetString("Email", cliente.Email);
+                return new RedirectResult(Url.Action(nameof(Painel)));
+
             }
             else
             {
-
+                ViewData["MSG_E"] = "Usuario não encontrado, verifique o email e senha digitados!";
+                return View();
             }
-            return View();
+            
         }
 
         [HttpGet]
